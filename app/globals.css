@@ -133,8 +133,24 @@
   button {
     @apply hover:cursor-pointer bg-rose-600 hover:bg-rose-700;
   }
-}
 
+
+  @keyframes gradient-x {
+    0%,
+    100% {
+      background-size: 200% 100%;
+      background-position: left center;
+    }
+    50% {
+      background-size: 200% 100%;
+      background-position: right center;
+    }
+  }
+
+  .animate-gradient-x {
+    animation: gradient-x 3s ease infinite;
+  }
+}
 
 @utility container {
   margin-inline: auto;
