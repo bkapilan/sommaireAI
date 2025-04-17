@@ -6,6 +6,7 @@ import { useUploadThing } from "@/utils/uploadthing";
 import { toast } from "sonner";
 import { generatePdfSummary, storePdfSummaryAction } from "@/actions/upload-actions";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
     file: z.instanceof(File, {message: 'Invalid file'}).
@@ -24,6 +25,7 @@ export default function UploadForm() {
     const formRef = useRef<HTMLFormElement>(null);
 
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
 
     const { startUpload, routeConfig } = useUploadThing("pdfUploader", {
@@ -101,6 +103,7 @@ export default function UploadForm() {
                 },
             }));
     
+            //summarize the pdf using AI
             const result = await generatePdfSummary(transformedResp as [{
                 serverData: {
                     userId: string;
@@ -139,12 +142,11 @@ export default function UploadForm() {
                 }
 
                 formRef.current?.reset();
+                //redirect to the [id] summary page
+                router.push(`/summaries/${storeResult.data.id}`);
 
             }
     
-            //summarize the pdf using AI
-            
-            //redirect to the [id] summary page
 
 
         } catch (error) {
@@ -152,6 +154,8 @@ export default function UploadForm() {
             toast.error("Error occurred while uploading.");
             setIsLoading(false);
             formRef.current?.reset();
+        } finally {
+            setIsLoading(false);
         }
 
 
