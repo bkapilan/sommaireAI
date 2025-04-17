@@ -4,7 +4,7 @@ import { z } from "zod";
 import UploadFormInput from "./upload-form-input";
 import { useUploadThing } from "@/utils/uploadthing";
 import { toast } from "sonner";
-import { generatePdfSummary } from "@/actions/upload-actions";
+import { generatePdfSummary, storePdfSummaryAction } from "@/actions/upload-actions";
 import { useRef, useState } from "react";
 
 const schema = z.object({
@@ -89,7 +89,7 @@ export default function UploadForm() {
     
             //parse the pdf using lang chain
     
-            // console.log("\n\nresp\n--------",resp);
+            console.log("\n\nresp\n--------",resp);
     
             const transformedResp = resp.map(file => ({
                 serverData: {
@@ -116,14 +116,29 @@ export default function UploadForm() {
             const { data = null, message = null } = result || {};
     
             if (data) {
+
+                let storeResult: any;
+
                 toast.info("Hang tigh! We are saving your summary.");
     
                 formRef.current?.reset();
-    
+
                 if(data.summary) {
                     toast.success("\n\nYour summary is ready.\n\n");
                     //save the summary to the database
+                    storeResult = await storePdfSummaryAction({
+                        userId: resp[0].serverData.userId,
+                        fileUrl: resp[0].ufsUrl,
+                        summary: data.summary,
+                        title: data.title,
+                        fileName: file.name,
+
+                    });
+                    toast.success("Your PDF has been summarized and saved.");
+                    console.log("\n\nstoreResult\n--------", {storeResult});
                 }
+
+                formRef.current?.reset();
 
             }
     
